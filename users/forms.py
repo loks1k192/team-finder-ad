@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlparse
 
 from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
@@ -49,7 +50,10 @@ class ProfileEditForm(forms.ModelForm):
         github_url = self.cleaned_data.get("github_url")
         if not github_url:
             return github_url
-        if "github.com" not in github_url:
+        domain = urlparse(github_url).netloc.lower()
+        if domain.startswith("www."):
+            domain = domain[4:]
+        if domain != "github.com":
             raise forms.ValidationError("Ссылка должна вести на github.com")
         return github_url
 
