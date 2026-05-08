@@ -6,6 +6,11 @@
       button.addEventListener("click", async (e) => {
         e.preventDefault();
 
+        if (button.dataset.authenticated !== "true") {
+          window.location.href = "/users/login/";
+          return;
+        }
+
         const projectId = button.dataset.projectId;
         const isFav = button.dataset.fav === "true";
         const response = await fetch(`/projects/${projectId}/toggle-favorite/`, {
@@ -21,12 +26,9 @@
           if (isFavoritesPage && isFav) {
             const card = button.closest(".project-card");
             card.remove();
-
             if (document.querySelectorAll(".project-card").length === 0) {
               const emptyBlock = document.querySelector("#empty-favorite-template");
-              if (emptyBlock) {
-                emptyBlock.style.display = "block";
-              }
+              if (emptyBlock) emptyBlock.style.display = "block";
             }
           } else {
             if (isFav) {

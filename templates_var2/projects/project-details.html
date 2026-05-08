@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ project.title }}{% endblock %}
+{% block title %}{{ project.name }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/project_details.css' %}">
@@ -55,6 +55,15 @@
                data-url="/projects/{{ project.id }}">
                 {% include 'includes/svg/share.html' %}
             </a>
+            <button
+                    class="project-fav-icon {% if user.is_authenticated and project in user.favorites.all %}favorite{% else %}not-favorite{% endif %}"
+                    data-project-id="{{ project.id }}"
+                    data-fav="{% if user.is_authenticated and project in user.favorites.all %}true{% else %}false{% endif %}"
+                    data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+                    title="Добавить в избранное"
+            >
+                {% include 'includes/svg/heart.html' %}
+            </button>
             {% if user.id == project.owner.id %}
                 <a href="/projects/{{ project.id }}/edit" class="black-button">
                     {% include 'includes/svg/pen.html' %}
@@ -110,5 +119,6 @@
         </div>
     </div>
 </div>
+{% include 'includes/project-fav-toggle.js' %}
 {% endblock %}
 {% endwith %}

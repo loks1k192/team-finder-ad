@@ -8,6 +8,13 @@ from django.db import models
 from PIL import Image, ImageDraw, ImageFont
 
 
+class Skill(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -40,6 +47,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     favorites = models.ManyToManyField(
         "projects.Project",
         related_name="interested_users",
+        blank=True,
+    )
+    skills = models.ManyToManyField(
+        "Skill",
+        related_name="users",
         blank=True,
     )
     is_active = models.BooleanField(default=True)

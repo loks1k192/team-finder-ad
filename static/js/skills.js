@@ -1,14 +1,24 @@
-// Profile skills UI logic
+// Skills UI logic — handles both user skills and project skills
 (function(){
   document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("skills-container");
     if (!container) return;
 
     const projectId = container.dataset.projectId;
-    const addBtn = document.getElementById("add-skill-btn");
+    const userId = container.dataset.userId;
+
+    if (!projectId && !userId) return;
+
+    const searchUrl = projectId ? `/projects/skills/?q=` : `/users/skills/?q=`;
+    const addUrl    = projectId ? `/projects/${projectId}/skills/add/` : `/users/${userId}/skills/add/`;
+    const removeUrlBase = projectId
+      ? `/projects/${projectId}/skills/`
+      : `/users/${userId}/skills/`;
+
+    const addBtn       = document.getElementById("add-skill-btn");
     const inputWrapper = document.getElementById("skill-input-wrapper");
-    const input = document.getElementById("skill-input");
-    const suggestions = document.getElementById("skill-suggestions");
+    const input        = document.getElementById("skill-input");
+    const suggestions  = document.getElementById("skill-suggestions");
 
     if (!addBtn || !inputWrapper || !input || !suggestions) return;
 
@@ -31,7 +41,7 @@
         return;
       }
       t = setTimeout(async () => {
-        const res = await fetch(`/projects/skills/?q=${encodeURIComponent(q)}`);
+        const res = await fetch(`${searchUrl}${encodeURIComponent(q)}`);
         if (!res.ok) return;
         const data = await res.json();
 
@@ -100,7 +110,7 @@
       if (e.target.classList.contains("remove-skill-btn")) {
         const chip = e.target.closest(".skill-chip");
         const skillId = chip.dataset.id;
-        const res = await fetch(`/projects/${projectId}/skills/${skillId}/remove/`, {
+        const res = await fetch(`${removeUrlBase}${skillId}/remove/`, {
           method: "POST",
           headers: { "X-CSRFToken": getCookie("csrftoken") }
         });
@@ -111,7 +121,7 @@
     });
 
     async function addSkillById(skillId) {
-      const res = await fetch(`/projects/${projectId}/skills/add/`, {
+      const res = await fetch(addUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +136,7 @@
     }
 
     async function addSkillByName(name) {
-      const res = await fetch(`/projects/${projectId}/skills/add/`, {
+      const res = await fetch(addUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -6,6 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/auth.css' %}">
 <link rel="stylesheet" href="{% static 'css/profile_edit.css' %}">
+<link rel="stylesheet" href="{% static 'css/skills.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -66,9 +67,29 @@
         {% endif %}
 
         <div class="form-actions">
-            <a href="/users/{{ user.id }}" class="cancel-button">Отмена</a>
+            <a href="/users/{{ user.id }}/" class="cancel-button">Отмена</a>
             <button type="submit" class="save-button">Сохранить</button>
         </div>
     </form>
+
+    <div class="profile-skills" style="margin-top: 32px;">
+        <h3>Навыки</h3>
+        <p style="font-size:13px;color:#666;margin-bottom:8px;">Изменения сохраняются сразу</p>
+        <div id="skills-container" class="skills-container" data-user-id="{{ user.id }}">
+            {% for skill in user.skills.all %}
+                <span class="skill-chip" data-id="{{ skill.id }}">
+                    {{ skill.name }}
+                    <button type="button" class="remove-skill-btn" aria-label="Удалить" title="Удалить">×</button>
+                </span>
+            {% empty %}
+                <span class="skill-empty">Навыки не указаны</span>
+            {% endfor %}
+            <button type="button" id="add-skill-btn" class="add-skill-btn">+ Добавить навык</button>
+        </div>
+        <div id="skill-input-wrapper" class="skill-input-wrapper hidden">
+            <input type="text" id="skill-input" placeholder="Введите навык..." autocomplete="off"/>
+            <ul id="skill-suggestions" class="skill-suggestions hidden"></ul>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -8,3 +8,4 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "owner", "status", "created_at")
     list_filter = ("status", "created_at")
     search_fields = ("name", "owner__email", "owner__name", "owner__surname")
+    filter_horizontal = ("participants", "skills")

@@ -24,6 +24,11 @@ class Project(models.Model):
         related_name="participated_projects",
         blank=True,
     )
+    skills = models.ManyToManyField(
+        "users.Skill",
+        related_name="projects",
+        blank=True,
+    )
 
     class Meta:
         ordering = ("-created_at",)
