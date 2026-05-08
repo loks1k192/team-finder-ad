@@ -109,13 +109,20 @@ def toggle_favorite_view(request, project_id):
 
 @login_required
 def favorite_projects_view(request):
-    projects = request.user.favorites.select_related("owner").prefetch_related("participants").order_by("-created_at")
+    projects = (
+        request.user.favorites
+        .select_related("owner")
+        .prefetch_related("participants")
+        .order_by("-created_at")
+    )
     return render(request, "projects/favorite_projects.html", {"projects": projects})
 
 
 def project_skills_search_view(request):
     q = request.GET.get("q", "").strip()
-    qs = Skill.objects.filter(name__icontains=q).order_by("name")[:10] if q else Skill.objects.none()
+    qs = (
+        Skill.objects.filter(name__icontains=q).order_by("name")[:10] if q else Skill.objects.none()
+    )
     return JsonResponse([{"id": s.id, "name": s.name} for s in qs], safe=False)
 
 

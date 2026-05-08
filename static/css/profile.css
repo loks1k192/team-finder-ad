@@ -66,3 +66,22 @@
 .projects-grid-single {
     grid-template-columns: 1fr;
 }
+
+.profile-skills {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.profile-skills h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.skill-empty {
+    font-size: 13px;
+    color: #999;
+}

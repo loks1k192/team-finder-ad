@@ -117,7 +117,9 @@ def logout_view(request):
 
 def skills_search_view(request):
     q = request.GET.get("q", "").strip()
-    qs = Skill.objects.filter(name__icontains=q).order_by("name")[:10] if q else Skill.objects.none()
+    qs = (
+        Skill.objects.filter(name__icontains=q).order_by("name")[:10] if q else Skill.objects.none()
+    )
     return JsonResponse([{"id": s.id, "name": s.name} for s in qs], safe=False)
 
 
