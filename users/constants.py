@@ -1,0 +1,26 @@
+USER_NAME_MAX_LENGTH = 124
+USER_SURNAME_MAX_LENGTH = 124
+USER_PHONE_MAX_LENGTH = 12
+USER_ABOUT_MAX_LENGTH = 256
+SKILL_NAME_MAX_LENGTH = 100
+
+USERS_PER_PAGE = 12
+SKILLS_SEARCH_LIMIT = 10
+
+AVATAR_SIZE_PX = 256
+AVATAR_FONT_SIZE_PX = 120
+AVATAR_FONT_FILE = "arial.ttf"
+AVATAR_FALLBACK_LETTER = "U"
+AVATAR_TEXT_COLOR = (44, 51, 60)
+AVATAR_BACKGROUND_COLORS = (
+    (232, 239, 249),  # light blue
+    (241, 235, 248),  # light lavender
+    (235, 245, 238),  # light mint
+    (247, 240, 233),  # light peach
+    (236, 238, 242),  # light gray
+)
+
+FILTER_OWNERS_OF_FAVORITE_PROJECTS = "owners-of-favorite-projects"
+FILTER_OWNERS_OF_PARTICIPATING_PROJECTS = "owners-of-participating-projects"
+FILTER_INTERESTED_IN_MY_PROJECTS = "interested-in-my-projects"
+FILTER_PARTICIPANTS_OF_MY_PROJECTS = "participants-of-my-projects"

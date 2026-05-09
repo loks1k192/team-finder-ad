@@ -1,7 +1,7 @@
 from django import forms
-from urllib.parse import urlparse
 
 from projects.models import Project
+from projects.utils import validate_github_url
 
 
 class ProjectForm(forms.ModelForm):
@@ -16,12 +16,4 @@ class ProjectForm(forms.ModelForm):
         }
 
     def clean_github_url(self):
-        github_url = self.cleaned_data.get("github_url")
-        if not github_url:
-            return github_url
-        domain = urlparse(github_url).netloc.lower()
-        if domain.startswith("www."):
-            domain = domain[4:]
-        if domain != "github.com":
-            raise forms.ValidationError("Ссылка должна вести на github.com")
-        return github_url
+        return validate_github_url(self.cleaned_data.get("github_url"))

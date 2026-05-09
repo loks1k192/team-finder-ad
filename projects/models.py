@@ -1,5 +1,7 @@
 from django.db import models
 
+from projects.constants import PROJECT_NAME_MAX_LENGTH, PROJECT_STATUS_MAX_LENGTH
+
 
 class Project(models.Model):
     STATUS_OPEN = "open"
@@ -9,7 +11,7 @@ class Project(models.Model):
         (STATUS_CLOSED, "Closed"),
     )
 
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=PROJECT_NAME_MAX_LENGTH)
     description = models.TextField(blank=True)
     owner = models.ForeignKey(
         "users.User",
@@ -18,7 +20,11 @@ class Project(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     github_url = models.URLField(blank=True)
-    status = models.CharField(max_length=6, choices=STATUS_CHOICES, default=STATUS_OPEN)
+    status = models.CharField(
+        max_length=PROJECT_STATUS_MAX_LENGTH,
+        choices=STATUS_CHOICES,
+        default=STATUS_OPEN,
+    )
     participants = models.ManyToManyField(
         "users.User",
         related_name="participated_projects",

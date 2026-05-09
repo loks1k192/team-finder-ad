@@ -1,13 +1,15 @@
 import json
+from http import HTTPStatus
 
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from projects.constants import PROJECTS_PER_PAGE, SKILLS_SEARCH_LIMIT
 from projects.forms import ProjectForm
 from projects.models import Project
+from projects.services import paginate
 from users.models import Skill
 
 
@@ -20,9 +22,7 @@ def projects_list_view(request):
         projects = projects.filter(skills__name=active_skill)
 
     projects = projects.distinct()
-    paginator = Paginator(projects, 12)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginate(request, projects, PROJECTS_PER_PAGE)
 
     all_skills = Skill.objects.order_by("name").values_list("name", flat=True)
 
@@ -54,7 +54,7 @@ def create_project_view(request):
         project.owner = request.user
         project.save()
         project.participants.add(request.user)
-        return redirect(f"/projects/{project.id}/")
+        return redirect("projects:detail", project_id=project.id)
     return render(request, "projects/create-project.html", {"form": form, "is_edit": False})
 
 
@@ -66,7 +66,7 @@ def edit_project_view(request, project_id):
     form = ProjectForm(request.POST or None, instance=project)
     if request.method == "POST" and form.is_valid():
         form.save()
-        return redirect(f"/projects/{project.id}/")
+        return redirect("projects:detail", project_id=project.id)
     return render(request, "projects/create-project.html", {"form": form, "is_edit": True})
 
 
@@ -75,7 +75,7 @@ def edit_project_view(request, project_id):
 def complete_project_view(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     if project.owner_id != request.user.id or project.status != Project.STATUS_OPEN:
-        return JsonResponse({"status": "error"}, status=403)
+        return JsonResponse({"status": "error"}, status=HTTPStatus.FORBIDDEN)
     project.status = Project.STATUS_CLOSED
     project.save(update_fields=["status"])
     return JsonResponse({"status": "ok", "project_status": project.status})
@@ -120,9 +120,10 @@ def favorite_projects_view(request):
 
 def project_skills_search_view(request):
     q = request.GET.get("q", "").strip()
-    qs = (
-        Skill.objects.filter(name__icontains=q).order_by("name")[:10] if q else Skill.objects.none()
-    )
+    if q:
+        qs = Skill.objects.filter(name__icontains=q).order_by("name")[:SKILLS_SEARCH_LIMIT]
+    else:
+        qs = Skill.objects.none()
     return JsonResponse([{"id": s.id, "name": s.name} for s in qs], safe=False)
 
 
@@ -131,11 +132,11 @@ def project_skills_search_view(request):
 def project_skill_add_view(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     if project.owner_id != request.user.id:
-        return JsonResponse({"error": "forbidden"}, status=403)
+        return JsonResponse({"error": "forbidden"}, status=HTTPStatus.FORBIDDEN)
     try:
         data = json.loads(request.body)
     except (ValueError, KeyError):
-        return JsonResponse({"error": "invalid json"}, status=400)
+        return JsonResponse({"error": "invalid json"}, status=HTTPStatus.BAD_REQUEST)
     skill_id = data.get("skill_id")
     name = data.get("name", "").strip()
     if skill_id:
@@ -143,7 +144,7 @@ def project_skill_add_view(request, project_id):
     elif name:
         skill, _ = Skill.objects.get_or_create(name=name)
     else:
-        return JsonResponse({"error": "no skill"}, status=400)
+        return JsonResponse({"error": "no skill"}, status=HTTPStatus.BAD_REQUEST)
     project.skills.add(skill)
     return JsonResponse({"id": skill.id, "name": skill.name})
 
@@ -153,7 +154,7 @@ def project_skill_add_view(request, project_id):
 def project_skill_remove_view(request, project_id, skill_id):
     project = get_object_or_404(Project, id=project_id)
     if project.owner_id != request.user.id:
-        return JsonResponse({"error": "forbidden"}, status=403)
+        return JsonResponse({"error": "forbidden"}, status=HTTPStatus.FORBIDDEN)
     skill = get_object_or_404(Skill, id=skill_id)
     project.skills.remove(skill)
     return JsonResponse({"status": "ok"})
